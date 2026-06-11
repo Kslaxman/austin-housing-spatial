@@ -26,6 +26,3 @@ if(length(packages) > 0) {
 } else {
   cat("Already Installed.")
 }
-
-# Census Api Key - 5ab08b7c548929377ba642a835d8181cc01b59fa
-# census_api_key("5ab08b7c548929377ba642a835d8181cc01b59fa", install = TRUE, overwrite = TRUE)
