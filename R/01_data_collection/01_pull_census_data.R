@@ -29,7 +29,7 @@ get_acs_variables <- function(year = 2021, survey = "acs5", key) {
     select(variable, label, concept)
 }
 
-acs_vars <- get_acs_variables(year = 2021, survey = "acs5", key = "5ab08b7c548929377ba642a835d8181cc01b59fa")
+acs_vars <- get_acs_variables(year = 2021, survey = "acs5", key = "YOUR CENSUS API KEY")
 cat("Total ACS variables available: ", nrow(acs_vars), "\n")
 
 # Home value
