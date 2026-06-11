@@ -9,7 +9,6 @@ library(spdep)
 library(gt)
 library(tmap)
 
-# ---- Load data and models ----
 housing       <- readRDS("data/processed/housing_gwr.rds")
 ols_model     <- readRDS("outputs/models/ols_model.rds")
 spat_model    <- readRDS("outputs/models/spat_model.rds")
@@ -19,7 +18,7 @@ weights_queen <- readRDS("data/processed/weights_queen.rds")
 
 hdf <- housing %>% st_drop_geometry()
 
-# ---- Helper: Moran's I on a residual vector ----
+# Moran's I on a residual vector
 get_moran <- function(model_resids, weights) {
   test <- moran.test(model_resids, weights, zero.policy = TRUE)
   list(I = round(test$estimate[1], 4), p = round(test$p.value, 4))
@@ -30,11 +29,8 @@ moran_spat <- get_moran(residuals(spat_model), weights_queen)
 moran_sem  <- get_moran(residuals(sem_model),  weights_queen)
 moran_gwr  <- get_moran(gwr_model$SDF$residual, weights_queen)
 
-# ---- GWR AICc comes from the model's diagnostics, not AIC() ----
-# (gwr.basic objects aren't a standard model class, so AIC() won't work on them)
 gwr_aicc <- round(gwr_model$GW.diagnostic$AICc, 1)
 
-# ---- Build the comparison table ----
 comp_table <- tibble(
   `#` = 1:4,
   Model = c("OLS", "Spatial Lag (SAR)", "Spatial Error (SEM)", "GWR"),
@@ -45,10 +41,10 @@ comp_table <- tibble(
   AIC = c(round(AIC(ols_model),  1),
           round(AIC(spat_model), 1),
           round(AIC(sem_model),  1),
-          gwr_aicc),                                  # FIX 1: GWR AICc instead of NA
+          gwr_aicc),                                  
   Moran_I = c(moran_ols$I, moran_spat$I, moran_sem$I, moran_gwr$I),
-  Moran_P = c(moran_ols$p, moran_spat$p, moran_sem$p, moran_gwr$p),  # FIX 2: $p, not $I
-  # FIX 3: "Yes" means residual autocorrelation is STILL present (p < 0.05)
+  Moran_P = c(moran_ols$p, moran_spat$p, moran_sem$p, moran_gwr$p),  
+  
   Spatial_auto = c(ifelse(moran_ols$p  < 0.05, "Yes", "No"),
                    ifelse(moran_spat$p < 0.05, "Yes", "No"),
                    ifelse(moran_sem$p  < 0.05, "Yes", "No"),
@@ -59,7 +55,6 @@ comp_table <- tibble(
 
 print(comp_table, width = Inf)
 
-# ---- Save ----
 saveRDS(comp_table, "outputs/models/comp_table.rds")
 
 comp_table %>%
